@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build and Release (Fast Packaging)
 
 on:
   push:
@@ -13,43 +13,84 @@ on:
 
 jobs:
   build:
-    name: Build OpenWrt Package
+    name: Fast IPK Packaging
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Prepare package source
+      - name: Extract Metadata and Build IPK
         run: |
-          mkdir -p package/luci-proto-isc-dhclient-ipv4
-          cp -r Makefile files package/luci-proto-isc-dhclient-ipv4/
+          # 1. 从 Makefile 提取元数据 (剥离空格和变量定义)
+          PKG_NAME=$(grep "PKG_NAME:=" Makefile | cut -d'=' -f2 | xargs)
+          PKG_VERSION=$(grep "PKG_VERSION:=" Makefile | cut -d'=' -f2 | xargs)
+          PKG_RELEASE=$(grep "PKG_RELEASE:=" Makefile | cut -d'=' -f2 | xargs)
+          PKG_MAINTAINER=$(grep "PKG_MAINTAINER:=" Makefile | cut -d'=' -f2 | xargs)
+          
+          # 提取依赖关系 (去掉 + 号并转换为 opkg 格式)
+          DEPENDS=$(grep "DEPENDS:=" Makefile | cut -d'=' -f2 | sed 's/+//g' | sed 's/ /, /g' | xargs)
+          TITLE=$(grep "TITLE:=" Makefile | cut -d'=' -f2 | xargs)
+          
+          echo "Building $PKG_NAME version $PKG_VERSION-$PKG_RELEASE"
 
-      - name: Build package
-        uses: openwrt/gh-action-sdk@main
-        env:
-          ARCH: x86_64-23.05.0
-          PACKAGES: luci-proto-isc-dhclient-ipv4
-          V: s
+          # 2. 准备构建目录
+          mkdir -p ipk_build/CONTROL
+          
+          # 3. 自动同步：将 files 目录下的所有内容镜像到 ipk 根目录
+          # 这样你在 files/ 下增加任何文件，Action 都会自动包含
+          if [ -d "files" ]; then
+            cp -r files/* ipk_build/
+          fi
 
-      - name: Show built packages
-        run: |
-          ls -R bin/packages/ || true
-          find bin/packages/ -name "*.ipk"
+          # 4. 权限处理 (OpenWrt 规范)
+          # 给予所有 shell 脚本执行权限
+          find ipk_build/ -type f -name "*.sh" -exec chmod +x {} +
+          # 确保特定路径下的文件有执行权限
+          [ -d "ipk_build/lib/netifd" ] && chmod +x ipk_build/lib/netifd/iscdhcp-script.sh || true
+          [ -d "ipk_build/lib/netifd/proto" ] && chmod +x ipk_build/lib/netifd/proto/*.sh || true
+
+          # 5. 生成 control 文件
+          cat <<EOF > ipk_build/CONTROL/control
+          Package: $PKG_NAME
+          Version: $PKG_VERSION-$PKG_RELEASE
+          Depends: $DEPENDS
+          Architecture: all
+          Maintainer: $PKG_MAINTAINER
+          Section: luci
+          Priority: optional
+          Description: $TITLE
+          EOF
+
+          # 6. 打包
+          # 创建 data.tar.gz
+          cd ipk_build
+          tar -czf ../data.tar.gz --exclude=CONTROL .
+          
+          # 创建 control.tar.gz
+          cd CONTROL
+          tar -czf ../../control.tar.gz .
+          
+          cd ../..
+          echo "2.0" > debian-binary
+          
+          # 合并为 IPK
+          IPK_FILENAME="${PKG_NAME}_${PKG_VERSION}-${PKG_RELEASE}_all.ipk"
+          tar -czf "$IPK_FILENAME" debian-binary control.tar.gz data.tar.gz
+          
+          mkdir -p output
+          mv "$IPK_FILENAME" output/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: luci-proto-isc-dhclient-ipv4-ipk
-          path: bin/packages/**/*.ipk
-          if-no-files-found: error
+          path: output/*.ipk
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: bin/packages/**/*.ipk
+          files: output/*.ipk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
