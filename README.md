@@ -1,5 +1,7 @@
 # LuCI ISC-DHCP Protocol Plugin (luci-proto-isc-dhclient-ipv4)
 
+![Build Status](https://github.com/${{ github.repository }}/actions/workflows/build.yml/badge.svg)
+
 [中文文档](./README-CN.md)
 
 An OpenWrt LuCI protocol plugin designed to replace the default `udhcpc` with `isc-dhclient` for obtaining interface IP addresses. 
@@ -33,15 +35,22 @@ It is particularly useful in environments with strict DHCP packet characteristic
 
 ## Installation
 
-### Option A: Compile from Source (Recommended)
+### Option A: Download from GitHub Releases (Easiest)
+Go to the [Releases](https://github.com/yomiel-s/luci-proto-isc-dhclient-ipv4/releases) page and download the pre-compiled `.ipk` file for your version. Upload it to your router and run:
+```bash
+opkg update
+opkg install luci-proto-isc-dhclient-ipv4_*.ipk
+```
+
+### Option B: Compile from Source
 1. Place this directory into the `package/` directory of your OpenWrt source tree.
 2. Run `make menuconfig`.
 3. Navigate to `LuCI -> 3. Protocols` and select `luci-proto-isc-dhclient-ipv4`.
 4. Compile: `make package/luci-proto-isc-dhclient-ipv4/compile V=s`.
 5. Upload the generated `.ipk` file to your router and install it using `opkg install`.
 
-### Option B: Manual Deployment
-If you don't want to compile an `.ipk` file, you can upload all files under `files/` to their corresponding paths on the router.
+### Option C: Manual Deployment
+You can just upload all files under `files/` to their corresponding paths on the router to complete the deployment process.
 
 1. **Install Dependencies**:
    ```bash
@@ -77,4 +86,4 @@ If you don't want to compile an `.ipk` file, you can upload all files under `fil
 
 ## License
 
-[Apache-2.0](./Makefile)
+[Apache-2.0](./LICENSE.md)

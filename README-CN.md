@@ -33,15 +33,22 @@
 
 ## 安装方法
 
-### 方案 A：从源码编译 (推荐)
+### 方案 A：从 GitHub Releases 下载 (最便捷)
+前往 [Releases](https://github.com/yomiel-s/luci-proto-isc-dhclient-ipv4/releases) 页面，下载对应版本的 `.ipk` 文件。然后将文件上传到路由器，并运行：
+```bash
+opkg update
+opkg install luci-proto-isc-dhclient-ipv4_*.ipk
+```
+
+### 方案 B：从源码编译
 1. 将此目录放入 OpenWrt 源码树的 `package/` 目录下。
 2. 运行 `make menuconfig`。
 3. 进入 `LuCI -> 3. Protocols` 勾选 `luci-proto-isc-dhclient-ipv4`。
 4. 编译：`make package/luci-proto-isc-dhclient-ipv4/compile V=s`。
 5. 将生成的 `.ipk` 文件上传到路由器并使用 `opkg install` 安装。
 
-### 方案 B：手动部署
-若无法编译，可直接将 `files/` 下的所有文件按其对应路径上传到路由器。
+### 方案 C：手动部署
+可直接将 `files/` 下的所有文件按其对应路径上传到路由器完成部署。
 
 1. **安装依赖**：
    ```bash
@@ -77,4 +84,4 @@
 
 ## 许可证
 
-[Apache-2.0](./Makefile)
+[Apache-2.0](./LICENSE.md)
