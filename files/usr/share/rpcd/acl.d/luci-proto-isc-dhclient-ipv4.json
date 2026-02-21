@@ -1,0 +1,11 @@
+{
+	"luci-proto-iscdhcp": {
+		"description": "Grant UCI access for ISC DHCP protocol",
+		"read": {
+			"uci": [ "network" ]
+		},
+		"write": {
+			"uci": [ "network" ]
+		}
+	}
+}
