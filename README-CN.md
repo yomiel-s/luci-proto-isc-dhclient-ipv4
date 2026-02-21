@@ -1,5 +1,7 @@
 # LuCI ISC-DHCP 协议插件 (luci-proto-isc-dhclient-ipv4)
 
+![Build Status](https://github.com/yomiel-s/luci-proto-isc-dhclient-ipv4/actions/workflows/build.yml/badge.svg)
+
 [English](./README.md)
 
 一个OpenWrt 的 LuCI 协议插件，旨在通过 `isc-dhclient` 替代默认的 `udhcpc` 来获取接口 IP。

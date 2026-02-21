@@ -1,6 +1,6 @@
 # LuCI ISC-DHCP Protocol Plugin (luci-proto-isc-dhclient-ipv4)
 
-![Build Status](https://github.com/${{ github.repository }}/actions/workflows/build.yml/badge.svg)
+![Build Status](https://github.com/yomiel-s/luci-proto-isc-dhclient-ipv4/actions/workflows/build.yml/badge.svg)
 
 [中文文档](./README-CN.md)
 
