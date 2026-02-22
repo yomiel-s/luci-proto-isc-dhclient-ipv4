@@ -32,7 +32,7 @@ return network.registerProtocol('iscdhcp', {
 		o.datatype = 'ip4addr';
 		o.rmempty = true;
 
-		o = s.taboption('advanced', form.Value, 'reqopts', _('Custom Request Options'), _('Comma-separated list of DHCP option names or numbers (Option 55)'));
+		o = s.taboption('advanced', form.Value, 'reqopts', _('Custom Request Options'), _('Comma-separated list of DHCP option names (Option 55). <br/>If empty, the default Windows-like request list is used: <br/>subnet-mask, routers, domain-name-servers, domain-name, router-discovery, static-routes, vendor-encapsulated-options, netbios-name-servers, netbios-node-type, netbios-scope, rfc3442-classless-static-routes, ms-classless-static-routes, wpad'));
 		o.placeholder = 'subnet-mask, routers, domain-name-servers, domain-name, ...';
 		o.rmempty = true;
 
